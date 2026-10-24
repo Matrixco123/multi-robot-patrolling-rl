@@ -18,6 +18,8 @@ The REINFORCE policy was trained in a 27-run sweep (3 graph topologies x 3 disco
 | 10% edges removed | 96.7 | 84.3 | **12.9%** | **45 / 45 cases** |
 | 20% edges removed | 112.0 | 95.6 | **14.7%** | **45 / 45 cases** |
 
+![REINFORCE vs HIF](figures/reinforce/reinforce_vs_hif.png)
+
 Reproduce this table with `python scripts/compare_to_baseline.py`.
 
 What the results show:
@@ -25,7 +27,7 @@ What the results show:
 - On damaged graphs, the learned policy beat HIF in every one of the 90 evaluation cases, across all discount factors and seeds.
 - On the intact grid, REINFORCE and HIF are effectively tied. HIF is already a strong policy when the graph has no dead ends.
 - The size of the improvement depends on how many seeds the baseline is averaged over. Against a single HIF run the gains appear larger (17.7% and 16.6%); the multi-seed figures above are the honest ones.
-- The reward penalises the worst node only, so the policy deliberately trades a slightly higher *average* idleness for a lower *worst-case* idleness.
+- The reward penalises the worst node only, so the policy deliberately trades average idleness for worst-case idleness. Its average idleness is roughly 10% higher than HIF's on all three graphs (for example, 34.2 vs 30.9 on the 10% damaged grid).
 
 ### Findings from the earlier stages
 
@@ -44,7 +46,7 @@ What the results show:
 |---|---|
 | Graph | 10x10 grid, 100 nodes, 4-neighbour connectivity |
 | Damage | 0%, 10% or 20% of edges removed at random (seed 123), keeping the graph connected |
-| Robots | 2, moving one edge per step, no immediate U-turns unless forced |
+| Robots | 2, each moving one edge per step (the REINFORCE policy also disallows immediate U-turns unless no other move exists) |
 | Coordination | Robot 2 avoids the node Robot 1 has chosen |
 | Idleness | +1 per step for every node, reset to 0 on a visit |
 | Objective | Minimise MaxIdle (worst-case idleness) |
@@ -86,7 +88,9 @@ multi-robot-patrolling-rl/
 ├── results/
 │   ├── rl_sweep/                # sweep_results.json (per-run, per-start results)
 │   └── rollout/                 # five-start evaluations and tie logs
-├── figures/rollout/             # reachability diagnostics and trajectory plots
+├── figures/
+│   ├── reinforce/               # results chart
+│   └── rollout/                 # reachability diagnostics and trajectory plots
 ├── models/
 │   ├── reinforce/               # 27 trained policy networks
 │   └── rollout_value_net/       # value networks used by the rollout planner
@@ -98,7 +102,7 @@ multi-robot-patrolling-rl/
 ## Getting started
 
 ```bash
-git clone https://github.com/<your-username>/multi-robot-patrolling-rl.git
+git clone https://github.com/Matrixco123/multi-robot-patrolling-rl.git
 cd multi-robot-patrolling-rl
 python -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
@@ -117,7 +121,7 @@ Run the HIF baseline on its own:
 python src/hif_baseline.py
 ```
 
-Train a REINFORCE policy on the 10% damaged grid:
+Train a REINFORCE policy on the 10% damaged grid (this takes a while on a CPU):
 
 ```python
 import sys; sys.path.insert(0, "src")
@@ -134,6 +138,7 @@ for row in evaluate_policy(net, nb, D):
 Load a trained policy instead of training one:
 
 ```python
+import sys; sys.path.insert(0, "src")
 import torch
 from rl_core import UtilityNet
 net = UtilityNet(hidden=8)
@@ -151,6 +156,10 @@ net.load_state_dict(torch.load("models/reinforce/rl_net_10pct_g97_seed0.pt"))
 - D. P. Bertsekas, *Rollout, Policy Iteration, and Distributed Reinforcement Learning*, Athena Scientific, 2020.
 - R. J. Williams, "Simple statistical gradient-following algorithms for connectionist reinforcement learning", *Machine Learning*, 1992.
 - A. Almeida et al., "Recent advances on multi-agent patrolling", *SBIA*, 2004.
+
+## Author
+
+Adityapratap Singh Parmar, B.Tech Robotics and Autonomous Systems, Plaksha University.
 
 ## Acknowledgements
 
