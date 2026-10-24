@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.venv/
+venv/
+
+# Large raw simulation outputs (regenerate with the notebooks; see README)
+patrolling_runs/
+*_tail.npz
+partial_*checkpoint*.npz
+partial_*checkpoint*.zip
+rollout_*.npz
+
+# Papers, reports and drafts that are not part of the public code release
+*.pdf
+*.docx
+
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
